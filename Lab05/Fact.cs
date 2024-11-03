@@ -8,14 +8,14 @@ namespace Lab05
 {
     public class Fact
     {
-        public string id;
-        public string factName { get; set; } // имя факта
-        public bool isDeduced { get; set; } = false; // является ли он выведенным
+        public string ID; // идентификатор факта
+        public string FactName { get; set; } // имя факта
+        //public bool IsDeduced { get; set; } = false; // является ли он выведенным или мы его задали
 
         public Fact(string id, string factName)
         {
-            this.id = id;
-            this.factName = factName;
+            this.ID = id;
+            this.FactName = factName;
         }
 
     }

@@ -5,6 +5,13 @@ namespace Lab05
         public Form1()
         {
             InitializeComponent();
+            Model model = new Model("description.txt", "rules.txt");
+
+        }
+
+        private void label2_Click(object sender, EventArgs e)
+        {
+
         }
     }
 }

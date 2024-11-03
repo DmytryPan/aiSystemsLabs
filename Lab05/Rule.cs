@@ -9,8 +9,8 @@ namespace Lab05
     public class Rule
     {
 
-        internal List<Fact> sendings { get; set; }
-        internal List<Fact> conclusions { get; set; }
+        internal List<Fact> Conditions { get; set; } 
+        internal List<Fact> Conclusion { get; set; }
 
     }
 }
