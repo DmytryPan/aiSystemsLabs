@@ -10,7 +10,7 @@ namespace Lab05
     {
 
         internal List<Fact> Conditions { get; set; } 
-        internal List<Fact> Conclusion { get; set; }
+        internal Fact Conclusion { get; set; }
 
     }
 }

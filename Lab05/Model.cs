@@ -10,7 +10,7 @@ namespace Lab05
     public class Model
     {
         // набор фактов в продукционке
-        public Dictionary<string, string> Facts = new Dictionary<string, string>(); 
+        public Dictionary<string, Fact> Facts = new Dictionary<string, Fact>(); 
 
         // Набор правил
         public List<Rule> Rules = new List<Rule>();
@@ -21,16 +21,29 @@ namespace Lab05
             {
                 Facts = File.ReadAllLines(FileWithFacts)
                     .Where(line => !string.IsNullOrWhiteSpace(line))
-                    .Select(line => ParseFact(line)).ToDictionary(f => f.ID, f => f.FactName);
+                    .Select(line => ParseFact(line))
+                    .ToDictionary(f => f.ID, f=>f);
                 Console.WriteLine("В продукционку успешно загружены файлы");
                
                 foreach(var fact in Facts)
-                    Console.WriteLine(fact.Key + " " + fact.Value);
-                
+                    Console.WriteLine(fact.Key + " " + fact.Value.FactName);
             }
             else
             {
                 throw new Exception($"Не получилось открыть файл {FileWithFacts}");
+            }
+
+            if (File.Exists(FileWithRules))
+            {
+                Rules = File.ReadAllLines(FileWithRules)
+                    .Where(line => !string.IsNullOrWhiteSpace(line))
+                    .Select(line => ParseRule(line, Facts))
+                    .ToList();
+                Console.WriteLine("В продукционку успешно загружены правила");
+            }
+            else
+            {
+                throw new Exception($"Не получилось открыть файл {FileWithRules}");
             }
         }
 
@@ -48,5 +61,32 @@ namespace Lab05
                 throw new Exception($"Не получилось спарсить строку: {line}");
             }
         }
+
+        public static Rule ParseRule(string line, Dictionary<string, Fact> factsDict)
+        {
+            var rule = new Rule();
+
+            if (line.Contains("=>"))
+            {
+                var LineParts = line.Trim().Split("=>");
+                var CondsIDs = LineParts[0].Split('&', StringSplitOptions.TrimEntries);
+                var ConclsIDs = LineParts[1].Trim();
+
+                rule.Conditions = CondsIDs.Select(id => factsDict.ContainsKey(id) ? factsDict[id] : null).Where(f => f != null).ToList();
+
+                if (factsDict.ContainsKey(ConclsIDs))
+                    rule.Conclusion = factsDict[ConclsIDs];
+                else
+                    throw new Exception($"В базе Нет факта с id{ConclsIDs}");
+            }
+            //если спарсили аксиому
+            else
+            {
+                rule.Conditions = new List<Fact>();
+                rule.Conclusion = factsDict[line.Trim()];
+            }
+            return rule;
+        }
+
     }
 }
