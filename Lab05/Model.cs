@@ -1,15 +1,10 @@
-﻿using System;
-using System.Collections;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using System.Text;
 namespace Lab05
 {
     public class Model
     {
         // набор фактов в продукционке
-        public Dictionary<string, Fact> Facts = new Dictionary<string, Fact>(); 
+        public Dictionary<string, Fact> Facts = new Dictionary<string, Fact>();
 
         // Набор правил
         public List<Rule> Rules = new List<Rule>();
@@ -21,9 +16,9 @@ namespace Lab05
                 Facts = File.ReadAllLines(FileWithFacts)
                     .Where(line => !string.IsNullOrWhiteSpace(line))
                     .Select(line => ParseFact(line))
-                    .ToDictionary(f => f.ID, f=>f);
+                    .ToDictionary(f => f.ID, f => f);
                 Console.WriteLine("В продукционку успешно загружены факты");
-               
+
                 //foreach(var fact in Facts)
                 //    Console.WriteLine(fact.Key + " " + fact.Value.FactName);
             }
@@ -58,18 +53,18 @@ namespace Lab05
                 sb.Append(rule.Conclusion.FactName);
                 rule.Description = sb.ToString();
             }
-            //foreach (var rule in Rules)
-            //{
-            //    Console.WriteLine();
-            //    Console.WriteLine(rule.Description);
-            //}
-                
+            foreach (var rule in Rules)
+            {
+                Console.WriteLine();
+                Console.WriteLine(rule.Description);
+            }
+
         }
 
         private static Fact ParseFact(string line)
         {
             var lineParts = line.Trim().Split(' ');
-            if(lineParts is not null)
+            if (lineParts is not null)
             {
                 Fact fact = new Fact(lineParts[0], lineParts[1]);
                 return fact;
@@ -125,10 +120,10 @@ namespace Lab05
             do
             {
                 newFactDeduced = false;
-                foreach(var rule in Rules)
+                foreach (var rule in Rules)
                 {
                     //Если можем применить правило и множество исходных фактов не содержит заключения, то
-                    if(rule.Conditions.All(InputFacts.Contains) && !InputFacts.Contains(rule.Conclusion))
+                    if (rule.Conditions.All(InputFacts.Contains) && !InputFacts.Contains(rule.Conclusion))
                     {
                         newFactDeduced = true;
                         InputFacts.Add(rule.Conclusion);
@@ -147,6 +142,13 @@ namespace Lab05
             return resolver;
         }
 
+        public Resolver BackWard(string TargetFactID)
+        {
+            var resolver = new Resolver();
+
+            return resolver;
+        }
+
     }
     public class Resolver
     {
@@ -155,7 +157,8 @@ namespace Lab05
         //Примененные правила
         public List<Rule> ApplyedRules;
         public bool isSuccessful;
-        public Resolver() {
+        public Resolver()
+        {
             DeducedFacts = new List<List<Fact>>();
             ApplyedRules = new List<Rule>();
             isSuccessful = false;
