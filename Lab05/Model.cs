@@ -4,7 +4,6 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-
 namespace Lab05
 {
     public class Model
@@ -23,10 +22,10 @@ namespace Lab05
                     .Where(line => !string.IsNullOrWhiteSpace(line))
                     .Select(line => ParseFact(line))
                     .ToDictionary(f => f.ID, f=>f);
-                Console.WriteLine("В продукционку успешно загружены файлы");
+                Console.WriteLine("В продукционку успешно загружены факты");
                
-                foreach(var fact in Facts)
-                    Console.WriteLine(fact.Key + " " + fact.Value.FactName);
+                //foreach(var fact in Facts)
+                //    Console.WriteLine(fact.Key + " " + fact.Value.FactName);
             }
             else
             {
@@ -45,10 +44,29 @@ namespace Lab05
             {
                 throw new Exception($"Не получилось открыть файл {FileWithRules}");
             }
+
+            foreach (var rule in Rules)
+            {
+                var sb = new StringBuilder();
+                sb.Append("Если ");
+                foreach (var Sending in rule.Conditions)
+                {
+                    sb.Append($"{Sending.FactName} И ");
+                }
+                sb[^2] = ' ';
+                sb.Append("То ");
+                sb.Append(rule.Conclusion.FactName);
+                rule.Description = sb.ToString();
+            }
+            //foreach (var rule in Rules)
+            //{
+            //    Console.WriteLine();
+            //    Console.WriteLine(rule.Description);
+            //}
+                
         }
 
-
-        public static Fact ParseFact(string line)
+        private static Fact ParseFact(string line)
         {
             var lineParts = line.Trim().Split(' ');
             if(lineParts is not null)
@@ -62,7 +80,7 @@ namespace Lab05
             }
         }
 
-        public static Rule ParseRule(string line, Dictionary<string, Fact> factsDict)
+        private static Rule ParseRule(string line, Dictionary<string, Fact> factsDict)
         {
             var rule = new Rule();
 
@@ -88,5 +106,21 @@ namespace Lab05
             return rule;
         }
 
+
     }
+    public class Resolver
+    {
+        //Выведенные факты
+        public List<List<Fact>> DeducedFacts;
+        //Примененные правила
+        public List<Rule> ApplyedRules;
+        public bool isSuccessful;
+        public Resolver() {
+            DeducedFacts = new List<List<Fact>>();
+            ApplyedRules = new List<Rule>();
+            isSuccessful = false;
+        }
+    }
+
 }
+
