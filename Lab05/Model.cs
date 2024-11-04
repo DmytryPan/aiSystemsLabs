@@ -106,6 +106,46 @@ namespace Lab05
             return rule;
         }
 
+        //Прямой вывод. принимает список Идентификаторов фактов-посылок и идентификатор целевого факта
+        public Resolver Forward(List<string> InputFactsIDs, string TargetFactID)
+        {
+            HashSet<Fact> InputFacts = new HashSet<Fact>(InputFactsIDs.Select(id => Facts[id]));
+            var TargetFact = Facts[TargetFactID];
+
+            Resolver resolver = new Resolver();
+            resolver.DeducedFacts.Add(new List<Fact>(InputFacts.ToList()));
+            //Если целевой факт есть в посылках
+            if (InputFacts.Contains(TargetFact))
+            {
+                resolver.isSuccessful = true;
+                return resolver;
+            }
+
+            bool newFactDeduced;
+            do
+            {
+                newFactDeduced = false;
+                foreach(var rule in Rules)
+                {
+                    //Если можем применить правило и множество исходных фактов не содержит заключения, то
+                    if(rule.Conditions.All(InputFacts.Contains) && !InputFacts.Contains(rule.Conclusion))
+                    {
+                        newFactDeduced = true;
+                        InputFacts.Add(rule.Conclusion);
+                        resolver.ApplyedRules.Add(rule);
+                        resolver.DeducedFacts.Add(new List<Fact>(InputFacts.ToList()));
+
+                        if (rule.Conclusion.ID == TargetFactID)
+                        {
+                            resolver.isSuccessful = true;
+                            return resolver;
+                        }
+                    }
+                }
+            } while (newFactDeduced);
+
+            return resolver;
+        }
 
     }
     public class Resolver
