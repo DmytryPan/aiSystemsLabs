@@ -1,4 +1,5 @@
-﻿using System.Text;
+﻿using System.CodeDom;
+using System.Text;
 namespace Lab05
 {
     public class Model
@@ -19,8 +20,8 @@ namespace Lab05
                     .ToDictionary(f => f.ID, f => f);
                 Console.WriteLine("В продукционку успешно загружены факты");
 
-                //foreach(var fact in Facts)
-                //    Console.WriteLine(fact.Key + " " + fact.Value.FactName);
+                foreach (var fact in Facts)
+                    Console.WriteLine(fact.Key + " " + fact.Value.FactName);
             }
             else
             {
@@ -43,21 +44,28 @@ namespace Lab05
             foreach (var rule in Rules)
             {
                 var sb = new StringBuilder();
+                var sb2 = new StringBuilder();
+                
                 sb.Append("Если ");
+                
                 foreach (var Sending in rule.Conditions)
                 {
                     sb.Append($"{Sending.FactName} И ");
+                    sb2.Append($"{Sending.ID} ");
                 }
                 sb[^2] = ' ';
                 sb.Append("То ");
                 sb.Append(rule.Conclusion.FactName);
+                sb2.Append("=> ");
+                sb2.Append(rule.Conclusion.ID);
                 rule.Description = sb.ToString();
+                rule.DescriptionID = sb2.ToString();
             }
-            foreach (var rule in Rules)
-            {
-                Console.WriteLine();
-                Console.WriteLine(rule.Description);
-            }
+            //foreach (var rule in Rules)
+            //{
+            //    Console.WriteLine();
+            //    Console.WriteLine(rule.Description);
+            //}
 
         }
 
@@ -123,7 +131,7 @@ namespace Lab05
                 foreach (var rule in Rules)
                 {
                     //Если можем применить правило и множество исходных фактов не содержит заключения, то
-                    if (rule.Conditions.All(InputFacts.Contains) && !InputFacts.Contains(rule.Conclusion))
+                    if (rule.Conditions.Count>0 && rule.Conditions.All(cond => InputFacts.Contains(cond)) && !InputFacts.Contains(rule.Conclusion))
                     {
                         newFactDeduced = true;
                         InputFacts.Add(rule.Conclusion);
@@ -142,10 +150,63 @@ namespace Lab05
             return resolver;
         }
 
-        public Resolver BackWard(string TargetFactID)
+        public Resolver BackWard(List<string> InputFactsIDs, string TargetFactID)
         {
             var resolver = new Resolver();
+            var target = Facts[TargetFactID];
+            var visited = new HashSet<string>(); // посещенные факты
+            var stack = new Stack<Fact>();
+            var DeducedFacts = new HashSet<Fact>(); // выведенные факты
 
+            foreach (var inputFact in InputFactsIDs)
+            {
+                if (Facts.ContainsKey(inputFact))
+                    DeducedFacts.Add(Facts[inputFact]);
+                else
+                {
+                    throw new Exception($"Факта с ID {inputFact} нет в базе");
+                }
+            }
+            resolver.DeducedFacts.Add(new List<Fact>(DeducedFacts.ToList()));
+
+            stack.Push(target);
+
+            while (stack.Count > 0)
+            {
+                var CurGoal = stack.Pop();
+                if (Facts.ContainsKey(CurGoal.ID) && !visited.Contains(CurGoal.ID))
+                {
+                    visited.Add(CurGoal.ID);
+                    if (DeducedFacts.Contains(CurGoal)) continue;
+
+                    var appRules = Rules.Where(r => r.Conclusion.ID == CurGoal.ID).ToList();
+                    var isRuleApplyed = false;
+                    foreach (var appRule in appRules)
+                    {
+                        var allConditionsHas = appRule.Conditions.All(cond => DeducedFacts.Contains(cond));
+                        if (allConditionsHas)
+                        {
+                            DeducedFacts.Add(CurGoal);
+                            resolver.DeducedFacts.Add(new List<Fact>() { CurGoal });
+                            resolver.ApplyedRules.Add(appRule);
+                            isRuleApplyed = true;
+                            break;
+                        }
+                        else
+                        {
+                            foreach (var cond in appRule.Conditions)
+                                if (!visited.Contains(cond.ID))
+                                    stack.Push(cond);
+                        }
+                    }
+                    if (!isRuleApplyed)
+                    {
+                        resolver.isSuccessful = false;
+                        return resolver;
+                    }
+                }
+            }
+            resolver.isSuccessful = true;
             return resolver;
         }
 

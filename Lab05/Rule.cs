@@ -15,5 +15,8 @@ namespace Lab05
         internal Fact Conclusion { get; set; }
       //Словесное описание правила
         public string Description { get; set; }
+        //Описание правила в ID
+        public string DescriptionID { get; set; }
+
     }
 }
