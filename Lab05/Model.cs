@@ -1,4 +1,4 @@
-﻿using System.CodeDom;
+﻿using System.Data;
 using System.Text;
 namespace Lab05
 {
@@ -9,6 +9,7 @@ namespace Lab05
 
         // Набор правил
         public List<Rule> Rules = new List<Rule>();
+        // Хранит ID аксиом
 
         public Model(string FileWithFacts, string FileWithRules)
         {
@@ -45,9 +46,9 @@ namespace Lab05
             {
                 var sb = new StringBuilder();
                 var sb2 = new StringBuilder();
-                
+
                 sb.Append("Если ");
-                
+
                 foreach (var Sending in rule.Conditions)
                 {
                     sb.Append($"{Sending.FactName} И ");
@@ -89,23 +90,24 @@ namespace Lab05
 
             if (line.Contains("=>"))
             {
-                var LineParts = line.Trim().Split("=>");
-                var CondsIDs = LineParts[0].Split('&', StringSplitOptions.TrimEntries);
-                var ConclsIDs = LineParts[1].Trim();
+                var lineParts = line.Trim().Split("=>");
+                var conditionsIds = lineParts[0].Split('&', StringSplitOptions.TrimEntries);
+                var conclusionId = lineParts[1].Trim();
 
-                rule.Conditions = CondsIDs.Select(id => factsDict.ContainsKey(id) ? factsDict[id] : null).Where(f => f != null).ToList();
+                rule.Conditions = conditionsIds.Select(id => factsDict.ContainsKey(id) ? factsDict[id] : null)
+                                               .Where(f => f != null).ToList();
 
-                if (factsDict.ContainsKey(ConclsIDs))
-                    rule.Conclusion = factsDict[ConclsIDs];
+                if (factsDict.ContainsKey(conclusionId))
+                    rule.Conclusion = factsDict[conclusionId];
                 else
-                    throw new Exception($"В базе Нет факта с id{ConclsIDs}");
+                    throw new Exception($"Факт с ID {conclusionId} не найден в базе.");
             }
-            //если спарсили аксиому
-            else
+            else // Это аксиома
             {
                 rule.Conditions = new List<Fact>();
                 rule.Conclusion = factsDict[line.Trim()];
             }
+
             return rule;
         }
 
@@ -131,7 +133,7 @@ namespace Lab05
                 foreach (var rule in Rules)
                 {
                     //Если можем применить правило и множество исходных фактов не содержит заключения, то
-                    if (rule.Conditions.Count>0 && rule.Conditions.All(cond => InputFacts.Contains(cond)) && !InputFacts.Contains(rule.Conclusion))
+                    if (rule.Conditions.Count > 0 && rule.Conditions.All(cond => InputFacts.Contains(cond)) && !InputFacts.Contains(rule.Conclusion))
                     {
                         newFactDeduced = true;
                         InputFacts.Add(rule.Conclusion);
@@ -149,66 +151,94 @@ namespace Lab05
 
             return resolver;
         }
-
-        public Resolver BackWard(List<string> InputFactsIDs, string TargetFactID)
+        //геттер для первого правила по заключению
+        public Rule FirstRuleByConclusion(Fact fact, HashSet<Rule> visited)
         {
-            var resolver = new Resolver();
-            var target = Facts[TargetFactID];
-            var visited = new HashSet<string>(); // посещенные факты
-            var stack = new Stack<Fact>();
-            var DeducedFacts = new HashSet<Fact>(); // выведенные факты
-
-            foreach (var inputFact in InputFactsIDs)
+            foreach (var rule in Rules)
             {
-                if (Facts.ContainsKey(inputFact))
-                    DeducedFacts.Add(Facts[inputFact]);
-                else
-                {
-                    throw new Exception($"Факта с ID {inputFact} нет в базе");
-                }
+                if (visited.Contains(rule)) continue;
+                if (rule.Conclusion.ID == fact.ID) return rule;
             }
-            resolver.DeducedFacts.Add(new List<Fact>(DeducedFacts.ToList()));
+            return null;
+        }
 
-            stack.Push(target);
+        public Resolver BackwardC(List<string> initialFactIds, string targetFactId)
+        {
+            Resolver resolver = new Resolver();
+            HashSet<Fact> axioms = initialFactIds.Select(id => Facts[id]).ToHashSet();
+            HashSet<Rule> visited = new HashSet<Rule>();
+            Fact target = Facts[targetFactId];
 
-            while (stack.Count > 0)
+            Stack<Fact> open = new Stack<Fact>();
+            open.Push(target);
+
+            while (open.Count > 0)
             {
-                var CurGoal = stack.Pop();
-                if (Facts.ContainsKey(CurGoal.ID) && !visited.Contains(CurGoal.ID))
+                Fact current = open.Peek();
+                if (axioms.Contains(current))
                 {
-                    visited.Add(CurGoal.ID);
-                    if (DeducedFacts.Contains(CurGoal)) continue;
+                    open.Pop();
 
-                    var appRules = Rules.Where(r => r.Conclusion.ID == CurGoal.ID).ToList();
-                    var isRuleApplyed = false;
-                    foreach (var appRule in appRules)
+                    if (current == target)
                     {
-                        var allConditionsHas = appRule.Conditions.All(cond => DeducedFacts.Contains(cond));
-                        if (allConditionsHas)
+                        resolver.isSuccessful= true;
+                        break;
+                    }
+
+                    continue;
+                }
+                Rule rule = FirstRuleByConclusion(current, visited);
+                if (rule != null)
+                {
+                    bool proven = true;
+                    foreach (var fact in rule.Conditions)
+                    {
+                        if (!axioms.Contains(fact))
                         {
-                            DeducedFacts.Add(CurGoal);
-                            resolver.DeducedFacts.Add(new List<Fact>() { CurGoal });
-                            resolver.ApplyedRules.Add(appRule);
-                            isRuleApplyed = true;
+                            proven = false;
+                            var fact_rule = FirstRuleByConclusion(fact, visited);
+                            if (fact_rule != null)
+                            {
+                                open.Push(fact);
+                            }
+                            else
+                            {
+                                visited.Add(rule);
+                            }
                             break;
                         }
-                        else
+                    }
+                    if (proven)
+                    {
+                        resolver.DeducedFacts.Add(new List<Fact>(axioms));
+                        resolver.ApplyedRules.Add(rule);
+
+
+                        axioms.Add(current);
+                        visited.Add(rule);
+                        open.Pop();
+
+                        if (current == target)
                         {
-                            foreach (var cond in appRule.Conditions)
-                                if (!visited.Contains(cond.ID))
-                                    stack.Push(cond);
+                            resolver.isSuccessful = true;
+                            break;
                         }
                     }
-                    if (!isRuleApplyed)
-                    {
-                        resolver.isSuccessful = false;
-                        return resolver;
-                    }
+                }
+                else
+                {
+                    open.Pop();
                 }
             }
-            resolver.isSuccessful = true;
+
+            resolver.ApplyedRules.Reverse();
+            resolver.DeducedFacts.Reverse();
             return resolver;
         }
+
+
+
+
 
     }
     public class Resolver

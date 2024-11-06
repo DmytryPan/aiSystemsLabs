@@ -31,14 +31,33 @@ namespace Lab05
             //    }
             //    Console.WriteLine();
             //}
-            foreach (var appRule in forwardResolver.ApplyedRules)
+            if (forwardResolver.isSuccessful)
             {
-                //appRule.Conditions.ForEach(cond => Console.Write(cond.FactName+";"));
-                Console.WriteLine(appRule.DescriptionID);
+                foreach (var appRule in forwardResolver.ApplyedRules)
+                {
+                    Console.WriteLine(appRule.DescriptionID);
+                }
+            }
+            else
+            {
+                Console.WriteLine("не получилось вывести факт из текущего набора аксиом");
             }
 
             Console.WriteLine("Обратный вывод: ");
-            var BackwardResolver = model.BackWard(inputFactsIDs, targetFactID);
+
+            var BackwardResolver = model.BackwardC(inputFactsIDs, targetFactID);
+            if (BackwardResolver.isSuccessful)
+            {
+                foreach (var appRule in BackwardResolver.ApplyedRules)
+                {
+
+                    Console.WriteLine(appRule.DescriptionID);
+                }
+            }
+            else
+            {
+                Console.WriteLine("не получилось вывести факт из текущего набора аксиом");
+            }
 
         }
     }
