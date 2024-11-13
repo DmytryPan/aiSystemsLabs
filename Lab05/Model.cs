@@ -104,7 +104,8 @@ namespace Lab05
             }
             else // Это аксиома
             {
-                rule.Conditions = new List<Fact>();
+                //rule.Conditions = new List<Fact>();
+                rule.Conditions = new List<Fact> { factsDict[line.Trim()] };
                 rule.Conclusion = factsDict[line.Trim()];
             }
 
@@ -156,32 +157,35 @@ namespace Lab05
         {
             foreach (var rule in Rules)
             {
-                if (visited.Contains(rule)) continue;
-                if (rule.Conclusion.ID == fact.ID) return rule;
+                if (visited.Contains(rule))
+                    continue;
+                if (rule.Conclusion.ID == fact.ID)
+                    return rule;
             }
             return null;
         }
 
-        public Resolver BackwardC(List<string> initialFactIds, string targetFactId)
+        public Resolver Backward(List<string> initialFactIds, string targetFactId)
         {
             Resolver resolver = new Resolver();
             HashSet<Fact> axioms = initialFactIds.Select(id => Facts[id]).ToHashSet();
             HashSet<Rule> visited = new HashSet<Rule>();
+            HashSet<Fact> visitedFacts = new HashSet<Fact>();
             Fact target = Facts[targetFactId];
 
-            Stack<Fact> open = new Stack<Fact>();
-            open.Push(target);
+            Stack<Fact> stack = new Stack<Fact>();
+            stack.Push(target);
 
-            while (open.Count > 0)
+            while (stack.Count > 0)
             {
-                Fact current = open.Peek();
+                Fact current = stack.Peek();
                 if (axioms.Contains(current))
                 {
-                    open.Pop();
+                    stack.Pop();
 
                     if (current == target)
                     {
-                        resolver.isSuccessful= true;
+                        resolver.isSuccessful = true;
                         break;
                     }
 
@@ -190,16 +194,23 @@ namespace Lab05
                 Rule rule = FirstRuleByConclusion(current, visited);
                 if (rule != null)
                 {
-                    bool proven = true;
+                    bool isProven = true;
                     foreach (var fact in rule.Conditions)
                     {
                         if (!axioms.Contains(fact))
                         {
-                            proven = false;
+                            isProven = false;
+                            //Защита от цикла + от использования аксиом, которые пользователь не вводил
+                            if (visitedFacts.Contains(fact))
+                            {
+                                stack.Pop();
+                                break;
+                            }
                             var fact_rule = FirstRuleByConclusion(fact, visited);
                             if (fact_rule != null)
                             {
-                                open.Push(fact);
+                                stack.Push(fact);
+                                visitedFacts.Add(fact);
                             }
                             else
                             {
@@ -208,15 +219,14 @@ namespace Lab05
                             break;
                         }
                     }
-                    if (proven)
+                    if (isProven)
                     {
                         resolver.DeducedFacts.Add(new List<Fact>(axioms));
                         resolver.ApplyedRules.Add(rule);
 
-
                         axioms.Add(current);
                         visited.Add(rule);
-                        open.Pop();
+                        stack.Pop();
 
                         if (current == target)
                         {
@@ -227,7 +237,7 @@ namespace Lab05
                 }
                 else
                 {
-                    open.Pop();
+                    stack.Pop();
                 }
             }
 
@@ -235,11 +245,6 @@ namespace Lab05
             resolver.DeducedFacts.Reverse();
             return resolver;
         }
-
-
-
-
-
     }
     public class Resolver
     {

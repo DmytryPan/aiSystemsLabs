@@ -35,7 +35,8 @@ namespace Lab05
             {
                 foreach (var appRule in forwardResolver.ApplyedRules)
                 {
-                    Console.WriteLine(appRule.DescriptionID);
+                    Console.WriteLine($"{appRule.Description} ({appRule.DescriptionID})");
+                    Console.WriteLine();
                 }
             }
             else
@@ -45,13 +46,14 @@ namespace Lab05
 
             Console.WriteLine("Обратный вывод: ");
 
-            var BackwardResolver = model.BackwardC(inputFactsIDs, targetFactID);
+            var BackwardResolver = model.Backward(inputFactsIDs, targetFactID);
             if (BackwardResolver.isSuccessful)
             {
                 foreach (var appRule in BackwardResolver.ApplyedRules)
                 {
 
-                    Console.WriteLine(appRule.DescriptionID);
+                    Console.WriteLine($"{appRule.Description} ({appRule.DescriptionID})");
+                    Console.WriteLine();
                 }
             }
             else
