@@ -107,6 +107,7 @@ namespace Lab05
                 //rule.Conditions = new List<Fact>();
                 rule.Conditions = new List<Fact> { factsDict[line.Trim()] };
                 rule.Conclusion = factsDict[line.Trim()];
+                // A1 => A1
             }
 
             return rule;
