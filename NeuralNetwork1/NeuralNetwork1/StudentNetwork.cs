@@ -59,7 +59,7 @@ namespace NeuralNetwork1
                 {
                     weights[i] = rand.NextDouble() * 2 * stdDev - stdDev;
                 }
-                bias = rand.NextDouble();
+                bias = rand.NextDouble() * 2 * stdDev - stdDev;
             }
 
             internal void AdjWeights()
