@@ -2,18 +2,22 @@
 using Accord.Statistics.Kernels;
 using System;
 using System.CodeDom;
+using System.Diagnostics;
+using System.Linq;
 
 namespace NeuralNetwork1
 {
     public class StudentNetwork : BaseNetwork
     {
+        private readonly Stopwatch watch = new Stopwatch(); // часы
+        static Random rand = new Random();
+
         // функция активации - сигмоида
         public static double Sigmoid(double x) => 1 / (1 + Math.Exp(-x));
         public static double DerivativeSigmoid(double outx) => outx * (1 - outx); // функция производной для сигмоиды. используем сразу выходной сигнал в качетве f(x)
-        public static double learningRate = 0.01;
+        public static double learningRate = 0.1;
         private class Neuron
         {
-
             public Neuron[] inputs;
             //выходной сигнал
             public double output;
@@ -23,18 +27,20 @@ namespace NeuralNetwork1
             public double error;
             // биас
             public double bias;
-            private Random rand = new Random();
 
             public Neuron(Neuron[] prevLayer = null)
             {
-                if (prevLayer == null && prevLayer.Length == 0)
+
+                if (prevLayer == null || prevLayer.Length == 0)
                     return;
                 inputs = prevLayer;
                 weights = new double[inputs.Length];
                 InitRandomWeights(); // инициализация весов случайными значениями
             }
-
-            public void Activate()
+            /// <summary>
+            /// Запускает работу нейрона. Присваивает выходу значение функции активации
+            /// </summary>
+            public void Work()
             {
 
                 double Sum = 0;
@@ -48,9 +54,10 @@ namespace NeuralNetwork1
             // Инициализация весов случайными величинами
             private void InitRandomWeights()
             {
+                double stdDev = 1.0 / Math.Sqrt(weights.Length);
                 for (int i = 0; i < weights.Length; i++)
                 {
-                    weights[i] = rand.NextDouble();
+                    weights[i] = rand.NextDouble() * 2 * stdDev - stdDev;
                 }
                 bias = rand.NextDouble();
             }
@@ -64,8 +71,11 @@ namespace NeuralNetwork1
                 bias -= learningRate * error;
             }
         }
+        // ссылка на сенсорный слой
         Neuron[] sensors;
+        //ссылка на выходной слой
         Neuron[] outputs;
+        //массив всех слоев сети
         Neuron[][] layers;
 
         public StudentNetwork(int[] structure)
@@ -99,20 +109,61 @@ namespace NeuralNetwork1
             sensors = layers[0];
             outputs = layers[layers.Length-1];
         }
-
-        public override int Train(Sample sample, double acceptableError, bool parallel)
+        // Запуск сети на переданном образе. 
+        double[] Run(Sample image)
         {
-            throw new NotImplementedException();
+            var res = Compute(image.input);
+            image.ProcessPrediction(res);
+            return res;
+        }
+        //тренировка на одном образце
+        public override int Train(Sample sample, double acceptableError, bool parallel=false)
+        {
+            var iter = 0;
+            Run(sample);
+            var error = sample.EstimatedError(); // вычисляем суммарную ошибку
+            while(error > acceptableError)
+            {
+                iter++;
+                Run(sample);
+                error = sample.EstimatedError();
+                BackProp(sample);
+            }
+            return iter;
+        }
+        //Обучение на датасете
+        public override double TrainOnDataSet(SamplesSet samplesSet, int epochsCount, double acceptableError, bool parallel=false)
+        {
+            watch.Restart();
+            double error = 0;
+            for (int epoch = 0; epoch < epochsCount; epoch++)
+            {
+                double errorSum = 0;
+                foreach(var sample in samplesSet.samples)
+                {
+                    int TrainResult = Train(sample, acceptableError);
+                    if (TrainResult == 0) 
+                        errorSum += sample.EstimatedError();
+                }
+                error = errorSum;
+                OnTrainProgress(((epoch + 1) * 1.0) / epochsCount, error, watch.Elapsed);
+            }
+            watch.Stop();
+            return error;
         }
 
-        public override double TrainOnDataSet(SamplesSet samplesSet, int epochsCount, double acceptableError, bool parallel)
-        {
-            throw new NotImplementedException();
-        }
-
+        // вычисление выхода сети
         protected override double[] Compute(double[] input)
         {
-            throw new NotImplementedException();
+            //кладем в выход сенсора наши входные данные
+            for (int i = 0; i < sensors.Length; i++)
+                sensors[i].output = input[i];
+            //каждый нейрон работает над входными данными
+            for (int layer = 1; layer < layers.Length; layer++)
+                for (int j = 0; j < layers[layer].Length; j++)
+                    layers[layer][j].Work();
+            //берем выход нейронов
+            return outputs.Select(o => o.output).ToArray();
         }
 
         // обратное распространение ошибки
