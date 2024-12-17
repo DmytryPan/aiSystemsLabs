@@ -42,7 +42,6 @@ namespace NeuralNetwork1
             /// </summary>
             public void Work()
             {
-
                 double Sum = 0;
                 Sum += bias;
                 for (int i = 0; i < inputs.Length; ++i)
