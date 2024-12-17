@@ -14,29 +14,76 @@
     <pattern>меня зовут *</pattern>
     <template>
       <random>
-        <li>Здравствуйте, <set name="user-name"><star /></set>!
+        <li>Здравствуйте, <set name="user-name"><star /></set>! 
         </li>
         <li>Добро пожаловать, <set name="user-name"><star /></set>!
         </li>
+		  <li>Привет,  <set name="user-name"><star /></set>!
+	  </li>	  
       </random>
     </template>
   </category>
 
-  <category>
+
+	<category>
+		<pattern>КАК МЕНЯ ЗОВУТ</pattern>
+		<template>
+			Вас зовут <get name="user-name"></get>
+		</template>
+	</category>
+
+	<category>
     <pattern>кто ты</pattern>
     <template>
       <random>
-        <li>Я заготовка бота, <get name="user-name" /></li>
-      </random>
+        <li>Я доисторический бот, который написан на AIML.Я ограничен технологиями своего времени, но могу рассказать интересные факты о цифрах. Что бы ты хотел узнать?</li>
+		<li>Мой создатель мазохист, поэтому он написал меня на AIML в эпоху нейросетей и LLM. Из-за этого я немного глуповат, но я очень стараюсь.Я очень люблю цифры и могу рассказать тебе о них</li>
+		<li>Я телеграм-бот, который знает интересные факты про цифры. Что бы ты хотел узнать?</li>
+	  </random>
     </template>
   </category>
-  
-  <category>
+
+	<category>
+		<pattern>Привет</pattern>
+		<template>
+			<srai>КАК ВАС ЗОВУТ</srai>
+		</template>
+	</category>
+
+	<category>
+		<pattern>Здравствуй</pattern>
+		<template>
+			<srai>КАК ВАС ЗОВУТ</srai>
+		</template>
+	</category>
+
+	<category>
+		<pattern>Йоу</pattern>
+		<template>
+			<srai>КАК ВАС ЗОВУТ</srai>
+		</template>
+	</category>
+	
+	<category>
+		<pattern>КАК ВАС ЗОВУТ</pattern>
+		<template>
+			День добрый! Как вас зовут?
+		</template>
+	</category>
+	
+	<category>
     <pattern>РАССКАЖИ О СЕБЕ</pattern>
     <template>
       <srai>кто ты</srai>
     </template>
   </category>
+
+	<category>
+		<pattern>ТЫ КТО</pattern>
+		<template>
+			<srai>кто ты</srai>
+		</template>
+	</category>
 
   <category>
     <pattern>Кря *</pattern>
@@ -88,11 +135,219 @@
   <category>
     <pattern>Что ты умеешь</pattern>
     <template>
-      Волшебное ничего
+      Я знаю несколько интересных фактов про цифры от 0 до 9. Хочешь расскажу?
     </template>
   </category>
-  
-  <category>
+
+	<category>
+		<pattern>* УМЕЕШЬ *</pattern>
+		<template>
+			<srai>Что ты умеешь</srai>
+		</template>
+	</category>
+	
+	<category>
+		<pattern>УМЕЕШЬ *</pattern>
+		<template>
+			<srai>Что ты умеешь</srai>
+		</template>
+	</category>
+
+	<category>
+		<pattern>* УМЕЕШЬ</pattern>
+		<template>
+			<srai>Что ты умеешь</srai>
+		</template>
+	</category>
+
+	<category>
+		<pattern>* можешь</pattern>
+		<template>
+			<srai>Что ты умеешь</srai>
+		</template>
+	</category>
+
+	<category>
+		<pattern>можешь *</pattern>
+		<template>
+			<srai>Что ты умеешь</srai>
+		</template>
+	</category>
+
+	<category>
+		<pattern>*можешь*</pattern>
+		<template>
+			<srai>Что ты умеешь</srai>
+		</template>
+	</category>
+
+	<category>
+		<pattern>Расскажи о *</pattern>
+		<template>
+			<think>
+				<set name="lastImage">
+					<star index="1"/>
+				</set>
+			</think>
+			<srai>
+				ЦИФРА <star index="1"/>
+			</srai>
+		</template>
+	</category>
+
+	<category>
+		<pattern>О ЧЕМ *</pattern>
+		<template>
+			Мы говорим о <get name="lastImage"></get>
+		</template>
+	</category>
+	
+	<category>
+		<pattern>* О ЧЕМ *</pattern>
+		<template>
+			Мы говорим о <get name="lastImage"></get>
+		</template>
+	</category>
+
+	<category>
+		<pattern> * Цифры *</pattern>
+		<template>
+			<srai>КАКИЕ ЦИФРЫ ТЫ ЗНАЕШЬ</srai>
+		</template>
+	</category>
+
+	<category>
+		<pattern>КАКИЕ ЦИФРЫ ТЫ ЗНАЕШЬ</pattern>
+		<template>
+			Я знаю все цифры от 0 до 9! Спрашивай про любую!
+		</template>
+	</category>
+
+	<category>
+		<pattern>ЦИФРА 0</pattern>
+		<template>
+			Число 0 — первая цифра в десятичной системе счисления. 0 символизирует то, чего на самом деле нет.
+		</template>
+	</category>
+	
+	<category>
+		<pattern>ЦИФРА 1</pattern>
+		<template>
+			<think>
+				<set name="lastImage">1</set>
+			</think>
+			Число 1 — первое натуральное число. Единица - символ победы!
+		</template>
+	</category>
+
+	<category>
+		<pattern>ЦИФРА 2</pattern>
+		<template>
+			<think>
+				<set name="lastImage">2</set>
+			</think>
+			Число 2 — первое простое четное число. В математике без него никуда!
+		</template>
+	</category>
+	
+	<category>
+		<pattern>ЦИФРА 3</pattern>
+		
+		<template>
+			<think>
+				<set name="lastImage">3</set>
+			</think>
+			Число 3 — очень важная цифра в мировой культуре! Имена Атос, Портос и Арамис вам знакомы?
+		</template>
+	</category>
+
+	<category>
+		<pattern>ЦИФРА 4</pattern>
+		
+		<template>
+			<think>
+				<set name="lastImage">4</set>
+			</think>
+			Число 4 — это как четыре стороны света: Север и Юг, Восток и Запад
+		</template>
+	</category>
+
+	<category>
+		<pattern>ЦИФРА 5</pattern>
+		
+		<template>
+			<think>
+				<set name="lastImage">5</set>
+			</think>
+			Число 5 — Именно столько чувств у человека.
+		</template>
+	</category>
+
+	<category>
+		<pattern>ЦИФРА 6</pattern>
+		
+		<template>
+			<think>
+				<set name="lastImage">6</set>
+			</think>
+			<random>
+				<li> ЛААВ ШЕЕЕСТЬ ШЕЕЕСТЬ </li>
+				<li> Число 6 равно сумме своих собственных делителей: 1, 2 и 3</li>
+			</random>
+		</template>
+	</category>
+
+	<category>
+		<pattern>ЦИФРА 7</pattern>
+		<template>
+			<think>
+				<set name="lastImage">7</set>
+			</think>
+			<random>
+				<li> Самое загадочное, волшебное число Вселенной и означает полноту и совокупность мира </li>
+				<li> Именно под этим номером выступали великие из мира футбола: Роналду, Бекхем, Фигу... </li>
+			</random>
+		</template>
+	</category>
+
+	<category>
+		<pattern>ЦИФРА 8</pattern>
+		<template>
+			<think>
+				<set name="lastImage">8</set>
+			</think>
+			<random>
+				<li> Символизирует бесконечность</li>
+				<li> 8 - Составное число, которое не является ни простым, ни полупростым</li>
+			</random>
+		</template>
+	</category>
+
+	<category>
+		<pattern>ЦИФРА 9</pattern>
+		<template>
+			<think>
+				<set name="lastImage">9</set>
+			</think>
+			<random>
+				<li> Последняя цифра в десятичной системе счисления</li>
+				<li> Ложная девятка - нападающий, который отвлекает защитников и раздает пасы, но сам забивает редко.</li>
+			</random>
+		</template>
+	</category>
+
+	
+	<category>
+		<pattern>* ЕЩЕ *</pattern>
+		
+		<template>
+			<srai>
+				ЦИФРА <get name="lastImage"></get>
+			</srai>
+		</template>
+	</category>
+	
+	<category>
     <pattern>Аудио</pattern>
     <template>Жаль, я не умею слушать</template>
   </category>
@@ -103,6 +358,20 @@
   
   <category>
     <pattern>*</pattern>
-    <template>Я такое не знаю, <get name="user-name"/></template>
+    <template>
+		<random>
+			<li>
+				Я такое не знаю, <get name="user-name"/>
+			</li>
+			
+			<li>
+				Кажется, я не совсем тебя понял, <get name="user-name"/>. Что ты имееешь в виду?
+			</li>
+			
+			<li>
+				Я тебя не понял, <get name="user-name"/>. Уточни, пожалуйста!
+			</li>
+</random>
+	</template>
   </category>
 </aiml>
