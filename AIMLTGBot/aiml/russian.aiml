@@ -31,7 +31,21 @@
 			Вас зовут <get name="user-name"></get>
 		</template>
 	</category>
+	
+	<category>
+		<pattern>* МОЕ ИМЯ</pattern>
+		<template>
+			<srai>КАК МЕНЯ ЗОВУТ</srai>
+		</template>
+	</category>
 
+	<category>
+		<pattern>МОЕ ИМЯ</pattern>
+		<template>
+			<srai>КАК МЕНЯ ЗОВУТ</srai>
+		</template>
+	</category>
+	
 	<category>
     <pattern>кто ты</pattern>
     <template>
@@ -85,52 +99,7 @@
 		</template>
 	</category>
 
-  <category>
-    <pattern>Кря *</pattern>
-    <template>
-      <srai>Кря</srai>
-    </template>
-  </category>
   
-  <category>
-    <pattern>_ Кря *</pattern>
-    <template>
-      <srai>Кря</srai>
-    </template>
-  </category>
-
-  <category>
-    <pattern>_ Кря</pattern>
-    <template>
-      <srai>Кря</srai>
-    </template>
-  </category>
-
-  <category>
-    <pattern>Кря</pattern>
-    <template>
-      <random>
-        <li>Кря</li>
-        <li>Кря Кря</li>
-        <li>Кря Кря Кря</li>
-        <li>Кря!</li>
-        <li>Кря Кря!</li>
-        <li>Кря Кря Кря!</li>
-        <li>Кря?</li>
-        <li>Кря Кря?</li>
-        <li>Кря Кря Кря?</li>
-        <li>Кря, <get name="user-name" /></li>
-        <li>Кря Кря, <get name="user-name" /> </li>
-        <li>Кря Кря Кря, <get name="user-name" /> </li>
-        <li>Кря, <get name="user-name" />!</li>
-        <li>Кря Кря, <get name="user-name" />!</li>
-        <li>Кря Кря Кря, <get name="user-name" />!</li>
-        <li>Кря, <get name="user-name" />?</li>
-        <li>Кря Кря, <get name="user-name" />?</li>
-        <li>Кря Кря Кря, <get name="user-name" />?</li>
-      </random>
-    </template>
-  </category>
 
   <category>
     <pattern>Что ты умеешь</pattern>
@@ -182,7 +151,7 @@
 	</category>
 
 	<category>
-		<pattern>Расскажи о *</pattern>
+		<pattern> Расскажи о *</pattern>
 		<template>
 			<think>
 				<set name="lastImage">
@@ -191,6 +160,33 @@
 			</think>
 			<srai>
 				ЦИФРА <star index="1"/>
+			</srai>
+		</template>
+	</category>
+
+	<category>
+		<pattern> Расскажи про *</pattern>
+		<template>
+			<srai>
+				Расскажи о <star index="1"/>
+			</srai>
+		</template>
+	</category>
+
+	<category>
+		<pattern> Что ты знаешь о *</pattern>
+		<template>
+			<srai>
+				Расскажи о <star index="1"/>
+			</srai>
+		</template>
+	</category>
+
+	<category>
+		<pattern> Что ты знаешь про *</pattern>
+		<template>
+			<srai>
+				Расскажи о <star index="1"/>
 			</srai>
 		</template>
 	</category>
