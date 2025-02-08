@@ -72,7 +72,7 @@ def generate_clips_code(description_file, rules_file, output_file):
         (assert (theorem (name ?f1) (coef (- (+ ?coef1 ?coef2) (* ?coef1 ?coef2)))))
         (retract ?i1)
         (retract ?i2)
-        (assert (message (str-cat ?f1 " " (- (+ ?coef1 ?coef2) (* ?coef1 ?coef2)) " : -------Коэффициент пересчитан-------")))
+        (assert (message (str-cat ?f1 " " (- (+ ?coef1 ?coef2) (* ?coef1 ?coef2)) " : Коэффициент пересчитан")))
     )
 )
 """
